@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion Calculator — Grimoire of the Heart</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:Georgia, 'Times New Roman', serif;
+    color:#1a1a1a;
+    background:#ffffff;
+    padding:0 0 60px 0;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:0 20px;}
+
+  header.hero{
+    text-align:center;
+    padding:40px 20px 30px 20px;
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:#666;
+    margin-bottom:10px;
+  }
+  h1.title{
+    font-size:clamp(24px,4vw,38px);
+    margin:0 0 10px 0;
+  }
+  .subtitle{
+    color:#444;
+    font-style:italic;
+    font-size:16px;
+    max-width:560px;
+    margin:0 auto;
+    line-height:1.5;
+  }
+
+  .panel{
+    border:1px solid #ccc;
+    border-radius:6px;
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .panel h2{
+    font-size:15px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#333;
+    margin:0 0 18px 0;
+    border-bottom:1px solid #ddd;
+    padding-bottom:8px;
+  }
+
+  .fusion-row{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:18px;
+    align-items:start;
+  }
+  @media (max-width:700px){ .fusion-row{grid-template-columns:1fr;} .fusion-plus{transform:rotate(90deg);margin:4px auto;} }
+
+  .mode-toggle{
+    display:flex;
+    gap:24px;
+    margin-bottom:18px;
+    font-size:14px;
+  }
+  .mode-toggle label{cursor:pointer;}
+  .mode-toggle input{margin-right:6px;}
+  .mode-toggle .hint{font-size:12px;color:#777;font-style:italic;}
+  .level-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+  }
+  .level-row label{font-size:13px;color:#666;}
+  .level-row input{
+    width:70px;
+    border:1px solid #bbb;
+    padding:8px 10px;
+    border-radius:4px;
+    font-family:inherit;
+    font-size:15px;
+  }
+  .source-card{
+    background:#fafafa;
+    border:1px solid #ddd;
+    border-radius:6px;
+    padding:16px;
+  }
+  .coming-soon{
+    color:#888;
+    font-style:italic;
+    text-align:center;
+    padding:40px 10px;
+    font-size:15px;
+  }
+  .source-card label.slot-label{
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:#666;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:8px;
+  }
+  select{
+    width:100%;
+    background:#fff;
+    color:#1a1a1a;
+    border:1px solid #bbb;
+    border-radius:4px;
+    padding:9px 10px;
+    font-family:inherit;
+    font-size:16px;
+  }
+  .source-info{
+    margin-top:12px;
+    font-size:14px;
+    color:#444;
+    line-height:1.6;
+    min-height:60px;
+  }
+  .source-info .arcana-name{font-weight:600;}
+  .source-info .type-chip{
+    display:inline-block;
+    background:#eee;
+    border:1px solid #ccc;
+    color:#333;
+    padding:1px 8px;
+    border-radius:20px;
+    font-size:12px;
+    margin:2px 3px 0 0;
+  }
+
+  .fusion-plus{
+    font-size:28px;
+    color:#888;
+    align-self:center;
+    padding-top:36px;
+    text-align:center;
+  }
+
+  .settings-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+    margin-top:20px;
+  }
+  @media (max-width:700px){ .settings-row{grid-template-columns:1fr;} }
+  .field{
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .field label{
+    font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#666;
+  }
+  .field input[type=number]{
+    border:1px solid #bbb;
+    color:#1a1a1a;
+    padding:8px 10px;
+    border-radius:4px;
+    font-family:inherit;
+    font-size:15px;
+  }
+  .field .hint{font-size:12px;color:#777;font-style:italic;}
+
+  .result-wrap{display:flex;justify-content:center;margin:30px 0 8px 0;}
+  .tarot-card{
+    width:100%;
+    max-width:460px;
+    background:#fafafa;
+    border:1px solid #bbb;
+    border-radius:8px;
+    padding:22px 24px 20px 24px;
+  }
+  .tarot-numeral{
+    font-size:12px;letter-spacing:0.12em;
+    color:#666;text-align:center;text-transform:uppercase;
+  }
+  .tarot-name{
+    font-size:26px;text-align:center;
+    margin:8px 0 2px 0;
+  }
+  .tarot-level{
+    text-align:center;color:#666;font-size:13px;
+    margin-bottom:14px;
+  }
+  .tarot-divider{height:1px;background:#ddd;margin:14px 0;}
+  .tarot-section-label{
+    font-size:10px;letter-spacing:0.1em;
+    color:#777;text-transform:uppercase;margin-bottom:6px;
+  }
+  .tarot-section{margin-bottom:14px;font-size:14.5px;line-height:1.6;}
+  .placeholder-card{
+    text-align:center;color:#777;font-style:italic;padding:40px 20px;
+  }
+  .warn-line{
+    color:#a33;
+    font-size:13.5px;
+    text-align:center;
+    margin-top:6px;
+    font-style:italic;
+  }
+
+  .candidates{margin-top:20px;}
+  .candidate-row{
+    display:flex;align-items:center;gap:14px;
+    padding:10px 14px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    margin-bottom:8px;
+    cursor:pointer;
+    background:#fff;
+  }
+  .candidate-row:hover{border-color:#999;}
+  .candidate-row.selected{
+    background:#f0f0f0;
+    border-color:#333;
+  }
+  .candidate-lv{
+    font-size:13px;
+    min-width:34px;
+    color:#555;
+  }
+  .candidate-name{font-weight:600;flex:1;}
+  .candidate-types{font-size:12px;color:#777;}
+
+  .sp-table{width:100%;border-collapse:collapse;margin-top:6px;}
+  .sp-table td{padding:6px 0;font-size:14.5px;border-bottom:1px dashed #ddd;}
+  .sp-table td:last-child{text-align:right;}
+  .sp-table tr:last-child td{border-bottom:none;font-weight:600;}
+
+  .reminder{
+    max-width:700px;
+    margin:30px auto 0 auto;
+    padding:0 20px;
+    font-size:13px;
+    color:#777;
+    line-height:1.7;
+  }
+  .reminder ul{padding-left:18px;margin:0;}
+
+  footer{
+    text-align:center;
+    color:#888;
+    font-size:12.5px;
+    margin-top:36px;
+    font-style:italic;
+  }
+  .lock-tag{
+    font-size:11px;color:#a33;font-style:italic;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1 class="title">Fusion Calculator</h1>
+    <p class="subtitle">A Fusion calculator for <em>Grimoire of the Heart</em>, built from the Core rulebook. Choose two, and see what the contract yields.</p>
+  </header>
+
+  <div class="panel">
+    <h2>Choose Two Sources</h2>
+
+    <div class="mode-toggle">
+      <label><input type="radio" name="mode" value="persona"> Known Persona</label>
+      <label><input type="radio" name="mode" value="arcana" checked> Arcana &amp; Level</label>
+    </div>
+
+    <div class="fusion-row">
+      <div class="source-card">
+        <label class="slot-label">Source A</label>
+        <div class="slot-persona" style="display:none;">
+          <div class="coming-soon">Coming soon, hopefully.</div>
+        </div>
+        <div class="slot-arcana">
+          <select id="arcSelA"></select>
+          <div class="level-row">
+            <label for="lvlA">Level</label>
+            <input type="number" id="lvlA" min="1" max="20" value="5">
+          </div>
+        </div>
+      </div>
+      <div class="fusion-plus">+</div>
+      <div class="source-card">
+        <label class="slot-label">Source B</label>
+        <div class="slot-persona" style="display:none;">
+          <div class="coming-soon">Coming soon, hopefully.</div>
+        </div>
+        <div class="slot-arcana">
+          <select id="arcSelB"></select>
+          <div class="level-row">
+            <label for="lvlB">Level</label>
+            <input type="number" id="lvlB" min="1" max="20" value="8">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div class="field">
+        <label for="clv">Your Character Level (CLv)</label>
+        <input type="number" id="clv" min="1" max="20" value="10">
+        <span class="hint">Caps the resulting Persona's level.</span>
+      </div>
+      <div class="field">
+        <label for="confRank">Confidant Rank (matching Arcana)</label>
+        <input type="number" id="confRank" min="0" max="99" value="0">
+        <span class="hint">+1 SP per 10 Ranks, if the result's Arcana matches a party Confidant.</span>
+      </div>
+      <div class="field">
+        <label for="aeonToggle">Judgement Result</label>
+        <select id="aeonToggle">
+          <option value="Judgement">Keep as Judgement</option>
+          <option value="Aeon">Use Aeon instead</option>
+        </select>
+        <span class="hint">Only applies if the fusion result is Judgement.</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultPanel" class="panel">
+    <h2>Fusion Result</h2>
+    <div class="result-wrap">
+      <div class="tarot-card" id="tarotCard">
+        <div class="placeholder-card">Fill in both sides above to see the fusion result.</div>
+      </div>
+    </div>
+    <div id="candidateSection" class="candidates" style="display:none;">
+      <div class="tarot-section-label" id="candidateLabel" style="text-align:center;margin-bottom:12px;">Eligible Personae of this Arcana &mdash; tap to choose one</div>
+      <div id="candidateList"></div>
+    </div>
+  </div>
+
+  <div class="reminder">
+    <ul>
+      <li>Pick two Personae you carry (your Starter Persona can never be used).</li>
+      <li>Cross-reference their Arcana on the Fusion Reference Table to find the resulting Arcana.</li>
+      <li>The new Persona's level can be at most the average of the two source levels, rounded down &mdash; and never higher than your own Character Level.</li>
+      <li>Pick any Persona of that Arcana at or under the level cap.</li>
+      <li>You get 5 + PLv Spell Points (plus Confidant bonuses) to buy spells from the new Persona's own Types.</li>
+      <li>You separately get half the new Persona's level in SP (half-points count) to inherit spells from the two source Personae's Type Decks, ignoring Type restrictions &mdash; these points vanish if unspent.</li>
+      <li>If the Arcana rolled is Judgement, you may take an Aeon Persona instead, if your table uses the Sea of Souls add-on.</li>
+    </ul>
+  </div>
+
+  <footer>Fan-made tool &middot; Grimoire of the Heart Core Rulebook, Part XI &mdash; Shadows and Personae</footer>
+</div>
+
+<script>
+const FUSION_MATRIX = {"Fool": {"Fool": "Fool", "Magician": "Death", "Priestess": "Moon", "Empress": "Hanged Man", "Emperor": "Temperance", "Hierophant": "Hermit", "Lovers": "Chariot", "Chariot": "Moon", "Justice": "Star", "Hermit": "Priestess", "Fortune": "Lovers", "Strength": "Death", "Hanged Man": "Tower", "Death": "Strength", "Temperance": "Hierophant", "Devil": "Temperance", "Tower": "Empress", "Star": "Magician", "Moon": "Justice", "Sun": "Justice", "Judgement": "Sun"}, "Magician": {"Fool": "Death", "Magician": "Magician", "Priestess": "Temperance", "Empress": "Justice", "Emperor": "Hanged Man", "Hierophant": "Death", "Lovers": "Devil", "Chariot": "Priestess", "Justice": "Emperor", "Hermit": "Lovers", "Fortune": "Justice", "Strength": "Fool", "Hanged Man": "Empress", "Death": "Hermit", "Temperance": "Chariot", "Devil": "Hierophant", "Tower": "Temperance", "Star": "Priestess", "Moon": "Lovers", "Sun": "Hierophant", "Judgement": "Strength"}, "Priestess": {"Fool": "Moon", "Magician": "Temperance", "Priestess": "Priestess", "Empress": "Emperor", "Emperor": "Empress", "Hierophant": "Magician", "Lovers": "Fortune", "Chariot": "Hierophant", "Justice": "Death", "Hermit": "Temperance", "Fortune": "Magician", "Strength": "Devil", "Hanged Man": "Death", "Death": "Magician", "Temperance": "Devil", "Devil": "Moon", "Tower": "Hanged Man", "Star": "Hermit", "Moon": "Hierophant", "Sun": "Chariot", "Judgement": "Justice"}, "Empress": {"Fool": "Hanged Man", "Magician": "Justice", "Priestess": "Emperor", "Empress": "Empress", "Emperor": "Justice", "Hierophant": "Fool", "Lovers": "Judgement", "Chariot": "Star", "Justice": "Lovers", "Hermit": "Strength", "Fortune": "Hermit", "Strength": "Chariot", "Hanged Man": "Priestess", "Death": "Fool", "Temperance": "Priestess", "Devil": "Sun", "Tower": "Emperor", "Star": "Lovers", "Moon": "Fortune", "Sun": "Tower", "Judgement": "Emperor"}, "Emperor": {"Fool": "Temperance", "Magician": "Hanged Man", "Priestess": "Empress", "Empress": "Justice", "Emperor": "Emperor", "Hierophant": "Fortune", "Lovers": "Fool", "Chariot": "Strength", "Justice": "Chariot", "Hermit": "Hierophant", "Fortune": "Sun", "Strength": "Tower", "Hanged Man": "Devil", "Death": "Hermit", "Temperance": "Devil", "Devil": "Justice", "Tower": "Star", "Star": "Lovers", "Moon": "Tower", "Sun": "Judgement", "Judgement": "Priestess"}, "Hierophant": {"Fool": "Hermit", "Magician": "Death", "Priestess": "Magician", "Empress": "Fool", "Emperor": "Fortune", "Hierophant": "Hierophant", "Lovers": "Strength", "Chariot": "Star", "Justice": "Hanged Man", "Hermit": "Fortune", "Fortune": "Justice", "Strength": "Fool", "Hanged Man": "Sun", "Death": "Chariot", "Temperance": "Death", "Devil": "Hanged Man", "Tower": "Judgement", "Star": "Tower", "Moon": "Priestess", "Sun": "Lovers", "Judgement": "Empress"}, "Lovers": {"Fool": "Chariot", "Magician": "Devil", "Priestess": "Fortune", "Empress": "Judgement", "Emperor": "Fool", "Hierophant": "Strength", "Lovers": "Lovers", "Chariot": "Temperance", "Justice": "Judgement", "Hermit": "Chariot", "Fortune": "Strength", "Strength": "Death", "Hanged Man": "Sun", "Death": "Temperance", "Temperance": "Strength", "Devil": "Moon", "Tower": "Empress", "Star": "Chariot", "Moon": "Magician", "Sun": "Empress", "Judgement": "Hanged Man"}, "Chariot": {"Fool": "Moon", "Magician": "Priestess", "Priestess": "Hierophant", "Empress": "Star", "Emperor": "Strength", "Hierophant": "Star", "Lovers": "Temperance", "Chariot": "Chariot", "Justice": "Moon", "Hermit": "Devil", "Fortune": "Priestess", "Strength": "Hermit", "Hanged Man": "Fool", "Death": "Devil", "Temperance": "Strength", "Devil": "Temperance", "Tower": "Fortune", "Star": "Moon", "Moon": "Lovers", "Sun": "Priestess", "Judgement": "Hierophant"}, "Justice": {"Fool": "Star", "Magician": "Emperor", "Priestess": "Death", "Empress": "Lovers", "Emperor": "Chariot", "Hierophant": "Hanged Man", "Lovers": "Judgement", "Chariot": "Moon", "Justice": "Justice", "Hermit": "Magician", "Fortune": "Emperor", "Strength": "Hierophant", "Hanged Man": "Lovers", "Death": "Fool", "Temperance": "Emperor", "Devil": "Fool", "Tower": "Sun", "Star": "Empress", "Moon": "Devil", "Sun": "Hanged Man", "Judgement": "Tower"}, "Hermit": {"Fool": "Priestess", "Magician": "Lovers", "Priestess": "Temperance", "Empress": "Strength", "Emperor": "Hierophant", "Hierophant": "Fortune", "Lovers": "Chariot", "Chariot": "Devil", "Justice": "Magician", "Hermit": "Hermit", "Fortune": "Star", "Strength": "Hierophant", "Hanged Man": "Star", "Death": "Strength", "Temperance": "Strength", "Devil": "Priestess", "Tower": "Judgement", "Star": "Strength", "Moon": "Priestess", "Sun": "Devil", "Judgement": "Emperor"}, "Fortune": {"Fool": "Lovers", "Magician": "Justice", "Priestess": "Magician", "Empress": "Hermit", "Emperor": "Sun", "Hierophant": "Justice", "Lovers": "Strength", "Chariot": "Priestess", "Justice": "Emperor", "Hermit": "Star", "Fortune": "Fortune", "Strength": "Temperance", "Hanged Man": "Emperor", "Death": "Star", "Temperance": "Empress", "Devil": "Hierophant", "Tower": "Hanged Man", "Star": "Devil", "Moon": "Sun", "Sun": "Star", "Judgement": "Tower"}, "Strength": {"Fool": "Death", "Magician": "Fool", "Priestess": "Devil", "Empress": "Chariot", "Emperor": "Tower", "Hierophant": "Fool", "Lovers": "Death", "Chariot": "Hermit", "Justice": "Hierophant", "Hermit": "Hierophant", "Fortune": "Temperance", "Strength": "Strength", "Hanged Man": "Temperance", "Death": "Hierophant", "Temperance": "Chariot", "Devil": "Death", "Tower": "Chariot", "Star": "Moon", "Moon": "Magician", "Sun": "Moon", "Judgement": "Fortune"}, "Hanged Man": {"Fool": "Tower", "Magician": "Empress", "Priestess": "Death", "Empress": "Priestess", "Emperor": "Devil", "Hierophant": "Sun", "Lovers": "Sun", "Chariot": "Fool", "Justice": "Lovers", "Hermit": "Star", "Fortune": "Emperor", "Strength": "Temperance", "Hanged Man": "Hanged Man", "Death": "Moon", "Temperance": "Death", "Devil": "Fortune", "Tower": "Hermit", "Star": "Justice", "Moon": "Strength", "Sun": "Hierophant", "Judgement": "Star"}, "Death": {"Fool": "Strength", "Magician": "Hermit", "Priestess": "Magician", "Empress": "Fool", "Emperor": "Hermit", "Hierophant": "Chariot", "Lovers": "Temperance", "Chariot": "Devil", "Justice": "Fool", "Hermit": "Strength", "Fortune": "Star", "Strength": "Hierophant", "Hanged Man": "Moon", "Death": "Death", "Temperance": "Hanged Man", "Devil": "Chariot", "Tower": "Sun", "Star": "Devil", "Moon": "Hierophant", "Sun": "Priestess", "Judgement": "Magician"}, "Temperance": {"Fool": "Hierophant", "Magician": "Chariot", "Priestess": "Devil", "Empress": "Priestess", "Emperor": "Devil", "Hierophant": "Death", "Lovers": "Strength", "Chariot": "Strength", "Justice": "Emperor", "Hermit": "Strength", "Fortune": "Empress", "Strength": "Chariot", "Hanged Man": "Death", "Death": "Hanged Man", "Temperance": "Temperance", "Devil": "Fool", "Tower": "Fortune", "Star": "Sun", "Moon": "Fortune", "Sun": "Magician", "Judgement": "Hermit"}, "Devil": {"Fool": "Temperance", "Magician": "Hierophant", "Priestess": "Moon", "Empress": "Sun", "Emperor": "Justice", "Hierophant": "Hanged Man", "Lovers": "Moon", "Chariot": "Temperance", "Justice": "Fool", "Hermit": "Priestess", "Fortune": "Hierophant", "Strength": "Death", "Hanged Man": "Fortune", "Death": "Chariot", "Temperance": "Fool", "Devil": "Devil", "Tower": "Magician", "Star": "Strength", "Moon": "Chariot", "Sun": "Hermit", "Judgement": "Lovers"}, "Tower": {"Fool": "Empress", "Magician": "Temperance", "Priestess": "Hanged Man", "Empress": "Emperor", "Emperor": "Star", "Hierophant": "Judgement", "Lovers": "Empress", "Chariot": "Fortune", "Justice": "Sun", "Hermit": "Judgement", "Fortune": "Hanged Man", "Strength": "Chariot", "Hanged Man": "Hermit", "Death": "Sun", "Temperance": "Fortune", "Devil": "Magician", "Tower": "Tower", "Star": "Death", "Moon": "Hermit", "Sun": "Emperor", "Judgement": "Moon"}, "Star": {"Fool": "Magician", "Magician": "Priestess", "Priestess": "Hermit", "Empress": "Lovers", "Emperor": "Lovers", "Hierophant": "Tower", "Lovers": "Chariot", "Chariot": "Moon", "Justice": "Empress", "Hermit": "Strength", "Fortune": "Devil", "Strength": "Moon", "Hanged Man": "Justice", "Death": "Devil", "Temperance": "Sun", "Devil": "Strength", "Tower": "Death", "Star": "Star", "Moon": "Temperance", "Sun": "Judgement", "Judgement": "Fortune"}, "Moon": {"Fool": "Justice", "Magician": "Lovers", "Priestess": "Hierophant", "Empress": "Fortune", "Emperor": "Tower", "Hierophant": "Priestess", "Lovers": "Magician", "Chariot": "Lovers", "Justice": "Devil", "Hermit": "Priestess", "Fortune": "Sun", "Strength": "Magician", "Hanged Man": "Strength", "Death": "Hierophant", "Temperance": "Fortune", "Devil": "Chariot", "Tower": "Hermit", "Star": "Temperance", "Moon": "Moon", "Sun": "Empress", "Judgement": "Fool"}, "Sun": {"Fool": "Justice", "Magician": "Hierophant", "Priestess": "Chariot", "Empress": "Tower", "Emperor": "Judgement", "Hierophant": "Lovers", "Lovers": "Empress", "Chariot": "Priestess", "Justice": "Hanged Man", "Hermit": "Devil", "Fortune": "Star", "Strength": "Moon", "Hanged Man": "Hierophant", "Death": "Priestess", "Temperance": "Magician", "Devil": "Hermit", "Tower": "Emperor", "Star": "Judgement", "Moon": "Empress", "Sun": "Sun", "Judgement": "Death"}, "Judgement": {"Fool": "Sun", "Magician": "Strength", "Priestess": "Justice", "Empress": "Emperor", "Emperor": "Priestess", "Hierophant": "Empress", "Lovers": "Hanged Man", "Chariot": "Hierophant", "Justice": "Tower", "Hermit": "Emperor", "Fortune": "Tower", "Strength": "Fortune", "Hanged Man": "Star", "Death": "Magician", "Temperance": "Hermit", "Devil": "Lovers", "Tower": "Moon", "Star": "Fortune", "Moon": "Fool", "Sun": "Death", "Judgement": "Judgement"}};
+const PERSONAE = {"Fool": [{"level": 1, "name": "Obariyon", "types": ["Physical", "Intel"], "interactions": "Resist: Physical, Nuclear / Weak: Thunder", "page": 168, "locked": false}, {"level": 3, "name": "High Pixie", "types": ["Heal", "Status"], "interactions": "Resist: Thunder, Wind / Weak: Gun, Intel", "page": 178, "locked": false}, {"level": 5, "name": "Yomotsu-Shikome", "types": ["Physical", "Dark", "Status"], "interactions": "Resist: Ice / Weak: Fire", "page": 190, "locked": false}, {"level": 7, "name": "Legion", "types": ["Status", "Debuff"], "interactions": "Resist: Physical, Fire / Weak: Light, PSY", "page": 204, "locked": false}, {"level": 8, "name": "Decarabia", "types": ["Fire", "Intel"], "interactions": "Resist: Dark, Status, Nuclear / Weak: Physical", "page": 208, "locked": false}, {"level": 9, "name": "Ose", "types": ["Physical", "Status"], "interactions": "Reflect: Physical / Weak: Light, Dark", "page": 219, "locked": false}, {"level": 10, "name": "Hell Biker", "types": ["Fire", "Dark"], "interactions": "Reflect: Fire, PSY / Weak: Light", "page": 222, "locked": false}, {"level": 11, "name": "Bugs", "types": ["Physical", "Light", "Buff"], "interactions": "Null: Dark, PSY / Weak: Status", "page": 228, "locked": false}, {"level": 13, "name": "Black Frost", "types": ["Fire", "Ice", "Dark"], "interactions": "Null: Ice / Resist: Fire / Weak: Light, Wind", "page": 239, "locked": false}, {"level": 14, "name": "Dionysius", "types": ["Fire", "Buff", "Debuff"], "interactions": "Reflect: Thunder / Resist: Light, Dark, Nuclear", "page": 250, "locked": false}, {"level": 16, "name": "Vishnu", "types": ["Wind"], "interactions": "Drain: Ice / Null: Light, Dark / Weak: Fire", "page": 261, "locked": false}, {"level": 16, "name": "Loki", "types": ["Ice", "Intel"], "interactions": "Drain: Ice / Weak: Fire / Resist: Nuclear", "page": 262, "locked": false}, {"level": 18, "name": "Shiki-Ouji", "types": ["Physical", "Debuff"], "interactions": "Null: Physical, Gun, Dark / Weak: Intel", "page": 278, "locked": false}, {"level": 20, "name": "Satanael", "types": ["Physical", "Dark"], "interactions": "Drain: Wind, Thunder", "page": 303, "locked": true}], "Magician": [{"level": 1, "name": "Pyro Jack", "types": ["Fire", "Debuff"], "interactions": "Null: Fire / Weak: Ice", "page": 164, "locked": false}, {"level": 3, "name": "Jack Frost", "types": ["Ice", "Heal"], "interactions": "Null: Ice / Weak: Fire", "page": 179, "locked": false}, {"level": 5, "name": "Nekomata", "types": ["Physical", "Wind"], "interactions": "Resist: Wind / Weak: Ice", "page": 192, "locked": false}, {"level": 7, "name": "Choronzon", "types": ["Physical", "Fire", "Status"], "interactions": "Drain: Fire / Weak: Light", "page": 313, "locked": false}, {"level": 8, "name": "Queen Mab", "types": ["Fire", "Thunder", "Debuff"], "interactions": "Null: Fire / Resist: Thunder / Weak: Wind", "page": 208, "locked": false}, {"level": 12, "name": "Rangda", "types": ["Physical", "Dark", "Debuff"], "interactions": "Null: Fire, Dark / Resist: Nuclear / Weak: Thunder, Light", "page": 238, "locked": false}, {"level": 13, "name": "Surt", "types": ["Physical", "Fire"], "interactions": "Reflect: Fire / Null: PSY / Weak: Ice", "page": 240, "locked": false}, {"level": 14, "name": "Jinn", "types": ["Fire", "Status"], "interactions": "Drain: Fire / Weak: Thunder", "page": 251, "locked": false}, {"level": 15, "name": "Dis", "types": ["Fire", "Heal"], "interactions": "Reflect: Fire / Weak: PSY", "page": 258, "locked": false}, {"level": 17, "name": "Futsunushi", "types": ["Physical", "Buff"], "interactions": "Resist: Physical, Fire, Ice, Wind, Thunder, Light, Dark, Nuclear, PSY / Weak: Status, Intel", "page": 268, "locked": true}, {"level": 19, "name": "Sati", "types": ["Fire", "Intel"], "interactions": "Null: Fire, PSY / Weak: Ice", "page": 289, "locked": false}], "Priestess": [{"level": 2, "name": "Apsaras", "types": ["Ice", "Heal"], "interactions": "Null: PSY / Resist: Ice / Weak: Physical", "page": 171, "locked": false}, {"level": 3, "name": "Saki Mitama", "types": ["Ice", "Heal", "Debuff"], "interactions": "Resist: Ice / Weak: Wind", "page": 175, "locked": false}, {"level": 4, "name": "Silky", "types": ["Ice", "Status", "Intel"], "interactions": "Resist: Ice, PSY / Weak: Thunder, Fire", "page": 187, "locked": false}, {"level": 6, "name": "Isis", "types": ["Fire", "Thunder", "Wind"], "interactions": "Null: Dark / Weak: Wind", "page": 195, "locked": false}, {"level": 7, "name": "Kikuri-Hime", "types": ["Fire", "Heal"], "interactions": "Null: Wind / Weak: Fire", "page": 205, "locked": false}, {"level": 8, "name": "Ganga", "types": ["Ice", "Status", "Heal"], "interactions": "Drain: Ice / Weak: Dark, Nuclear", "page": 210, "locked": false}, {"level": 9, "name": "Sarasvati", "types": ["Status", "Debuff"], "interactions": "Null: Ice / Weak: Status", "page": 214, "locked": false}, {"level": 15, "name": "Tzitzimitl", "types": ["Fire", "Ice", "Wind"], "interactions": "Reflect: Light / Null: Dark / Weak: Wind", "page": 252, "locked": false}, {"level": 17, "name": "Skadi", "types": ["Ice", "Status"], "interactions": "Reflect: Ice / Null: Null", "page": 271, "locked": false}, {"level": 18, "name": "Lakshmi", "types": ["Ice", "Light", "Heal"], "interactions": "Resist: Light, Ice / Weak: Fire", "page": 280, "locked": true}], "Empress": [{"level": 1, "name": "Senri", "types": ["Fire", "Heal"], "interactions": "Null: Fire / Weak: Thunder", "page": 167, "locked": false}, {"level": 3, "name": "Yaksini", "types": ["Physical", "Status"], "interactions": "Resist: Ice, Nuclear / Weak: Status", "page": 177, "locked": false}, {"level": 6, "name": "Lamia", "types": ["Fire", "Status"], "interactions": "Null: Dark / Resist: PSY, Gun / Weak: Ice", "page": 198, "locked": false}, {"level": 7, "name": "Dakini", "types": ["Physical", "Buff"], "interactions": "Resist: Fire", "page": 205, "locked": false}, {"level": 8, "name": "Hariti", "types": ["Status", "Heal"], "interactions": "Resist: Light, Status / Weak: Physical", "page": 212, "locked": false}, {"level": 9, "name": "Gorgon", "types": ["Physical", "Ice"], "interactions": "Null: Ice / Weak: Light, PSY", "page": 218, "locked": false}, {"level": 11, "name": "Titania", "types": ["Heal", "Wind", "Intel"], "interactions": "Resist: Light, Dark / Weak: Intel, Nuclear", "page": 229, "locked": false}, {"level": 14, "name": "Mother Harlot", "types": ["Ice", "Dark", "Debuff"], "interactions": "Null: Dark / Resist: Intel / Weak: Light", "page": 247, "locked": false}, {"level": 16, "name": "Kali", "types": ["Physical", "Ice", "Light"], "interactions": "Null: Physical / Reflect: Status, PSY", "page": 263, "locked": false}, {"level": 17, "name": "Scathach", "types": ["Physical", "Ice", "Wind"], "interactions": "Null: Wind / Weak: Fire", "page": 271, "locked": false}, {"level": 18, "name": "Cybele", "types": ["Light", "Heal", "Buff"], "interactions": "Null: Wind / Reflect: Nuclear / Weak: Intel", "page": 281, "locked": false}, {"level": 19, "name": "Alilat", "types": ["Ice", "Buff", "Intel"], "interactions": "Reflect: Physical / Weak: Light", "page": 286, "locked": true}], "Emperor": [{"level": 2, "name": "Forneus", "types": ["Ice", "Status"], "interactions": "Drain: Ice / Null: Status / Weak: Thunder", "page": 174, "locked": false}, {"level": 3, "name": "Oberon", "types": ["Physical", "Thunder"], "interactions": "Null: Intel / Resist: Thunder / Weak: Status", "page": 177, "locked": false}, {"level": 6, "name": "Setanta", "types": ["Physical", "Buff"], "interactions": "Null: Thunder, PSY / Resist: Status, Nuclear / Weak: Intel", "page": 197, "locked": false}, {"level": 7, "name": "Eligor", "types": ["Physical", "Fire", "Buff"], "interactions": "Resist: Fire / Weak: Ice", "page": 200, "locked": false}, {"level": 8, "name": "Take-Mikazuchi", "types": ["Thunder", "Buff"], "interactions": "Resist: Thunder / Weak: Wind", "page": 209, "locked": false}, {"level": 12, "name": "Pabilsag", "types": ["Physical", "Dark", "Debuff"], "interactions": "Null: Fire / Resist: Nuclear / Weak: Ice", "page": 237, "locked": false}, {"level": 13, "name": "Baal", "types": ["Physical", "Wind", "Buff"], "interactions": "Drain: Wind / Reflect: Nuclear / Resist: Dark, Light / Weak: Physical", "page": 240, "locked": false}, {"level": 13, "name": "Hadad", "types": ["Wind", "Buff"], "interactions": "Drain: Wind / Resist: Light", "page": 241, "locked": false}, {"level": 13, "name": "Barong", "types": ["Thunder", "Status"], "interactions": "Null: Thunder, Light / Resist: PSY / Weak: Fire, Wind", "page": 246, "locked": false}, {"level": 15, "name": "King Frost", "types": ["Ice", "Intel"], "interactions": "Drain: Ice, Nuclear / Null: Light, PSY", "page": 256, "locked": false}, {"level": 19, "name": "Odin", "types": ["Physical", "Thunder", "Wind"], "interactions": "Null: Thunder / Weak: Fire", "page": 304, "locked": true}], "Hierophant": [{"level": 2, "name": "Omoikane", "types": ["Thunder", "Intel", "Debuff"], "interactions": "Resist: Thunder / Weak: Ice", "page": 172, "locked": false}, {"level": 2, "name": "Anzu", "types": ["Wind", "Light"], "interactions": "Null: Wind / Weak: Gun", "page": 174, "locked": false}, {"level": 4, "name": "Shiisaa", "types": ["Physical", "Thunder"], "interactions": "Null: Light / Resist: Physical / Weak: Dark", "page": 186, "locked": false}, {"level": 5, "name": "Orobas", "types": ["Fire", "Buff"], "interactions": "Resist: Thunder / Weak: Physical", "page": 191, "locked": false}, {"level": 8, "name": "Unicorn", "types": ["Physical", "Light"], "interactions": "Null: Light / Weak: Dark", "page": 211, "locked": false}, {"level": 11, "name": "Daisoujou", "types": ["Fire", "Heal", "Light"], "interactions": "Null: Light / Resist: Physical / Weak: Dark", "page": 227, "locked": false}, {"level": 13, "name": "Hokuto Seikun", "types": ["Physical", "Ice"], "interactions": "Reflect: Thunder / Weak: Fire", "page": 243, "locked": false}, {"level": 15, "name": "Cerberus", "types": ["Fire"], "interactions": "Drain: Fire / Resist: Intel / Weak: Ice", "page": 255, "locked": false}, {"level": 16, "name": "Bishamonten", "types": ["Physical", "Heal", "Intel"], "interactions": "Null: Physical / Resist: Light / Weak: Ice", "page": 263, "locked": false}, {"level": 17, "name": "Hachiman", "types": ["Thunder", "Buff", "Debuff"], "interactions": "Null: Ice, Thunder / Weak: Light", "page": 269, "locked": false}, {"level": 20, "name": "Kohryu", "types": ["Light", "Heal"], "interactions": "Null: Status, Intel / Reflect: PSY", "page": 302, "locked": true}], "Lovers": [{"level": 1, "name": "Pixie", "types": ["Thunder", "Heal"], "interactions": "Resist: Thunder / Weak: Dark", "page": 164, "locked": false}, {"level": 5, "name": "Leanan Sidhe", "types": ["Dark", "Status", "Debuff"], "interactions": "Resist: Wind / Weak: Fire", "page": 192, "locked": false}, {"level": 6, "name": "Ame-No-Uzume", "types": ["Ice", "Thunder", "Intel"], "interactions": "Drain: Fire / Weak: Wind, Light", "page": 195, "locked": false}, {"level": 11, "name": "Vivian", "types": ["Ice", "Status", "Intel"], "interactions": "Resist: Ice / Weak: Thunder", "page": 316, "locked": false}, {"level": 12, "name": "Kushinada", "types": ["Fire", "Intel", "Status"], "interactions": "Reflect: Light, PSY / Weak: Status", "page": 237, "locked": false}, {"level": 13, "name": "Narcissus", "types": ["Wind", "Heal"], "interactions": "Null: Thunder / Resist: Wind, Light / Weak: Fire", "page": 244, "locked": false}, {"level": 15, "name": "Parvati", "types": ["Thunder", "Light", "Heal"], "interactions": "Reflect: Ice / Resist: Light, Status / Weak: Dark", "page": 255, "locked": false}, {"level": 19, "name": "Raphael", "types": ["Physical", "Debuff"], "interactions": "Null: Intel, Status / Drain: Ice", "page": 281, "locked": false}, {"level": 19, "name": "Ishtar", "types": ["Thunder", "Heal"], "interactions": "Null: Thunder / Weak: Wind", "page": 288, "locked": true}], "Chariot": [{"level": 1, "name": "Agathion", "types": ["Physical", "Buff"], "interactions": "Resist: Physical / Weak: Wind, PSY", "page": 165, "locked": false}, {"level": 3, "name": "Slime", "types": ["Physical", "Dark"], "interactions": "Resist: Physical / Weak: Wind, Nuclear", "page": 178, "locked": false}, {"level": 4, "name": "Nata Taishi", "types": ["Physical"], "interactions": "Resist: Fire / Weak: Thunder", "page": 186, "locked": false}, {"level": 5, "name": "Ara Mitama", "types": ["Physical", "Thunder"], "interactions": "Resist: Physical, Nuclear / Weak: Ice", "page": 190, "locked": false}, {"level": 10, "name": "Ares", "types": ["Physical"], "interactions": "Null: Light / Weak: Wind", "page": 224, "locked": false}, {"level": 11, "name": "White Rider", "types": ["Physical", "Status", "Dark"], "interactions": "Reflect: Dark / Null: Nuclear / Weak: Ice", "page": 233, "locked": false}, {"level": 11, "name": "Triglav", "types": ["Physical", "Thunder"], "interactions": "Reflect: PSY / Weak: Thunder", "page": 228, "locked": false}, {"level": 13, "name": "Kin-Ki", "types": ["Physical", "Buff"], "interactions": "Null: Physical, Nuclear / Weak: Intel", "page": 243, "locked": false}, {"level": 14, "name": "Oumitsunu", "types": ["Physical", "Intel"], "interactions": "Drain: Thunder / Weak: Wind", "page": 250, "locked": false}, {"level": 16, "name": "Thor", "types": ["Physical", "Thunder"], "interactions": "Resist: Physical, Light / Weak: Status", "page": 260, "locked": false}, {"level": 17, "name": "Atavaka", "types": ["Physical", "Light"], "interactions": "Null: Physical, Light / Weak: Ice, PSY", "page": 270, "locked": false}, {"level": 18, "name": "Chi You", "types": ["Physical", "Buff"], "interactions": "Null: Status / Resist: Physical, PSY", "page": 279, "locked": true}, {"level": 19, "name": "Yoshitsune", "types": ["Physical", "Buff"], "interactions": "N/A", "page": 289, "locked": false}], "Justice": [{"level": 3, "name": "Angel", "types": ["Light", "Heal", "Debuff"], "interactions": "Null: Light / Weak: Dark", "page": 179, "locked": false}, {"level": 5, "name": "Archangel", "types": ["Light", "Status", "Buff"], "interactions": "Null: Light / Weak: Status", "page": 191, "locked": false}, {"level": 6, "name": "Principality", "types": ["Light", "Status", "Heal"], "interactions": "Resist: Physical, Light / Weak: Gun, Fire", "page": 196, "locked": false}, {"level": 8, "name": "Power", "types": ["Physical", "Heal", "Buff"], "interactions": "Resist: Wind / Weak: Dark", "page": 212, "locked": false}, {"level": 14, "name": "Virtue", "types": ["Physical", "Light", "Heal"], "interactions": "Null: Thunder, Nuclear / Weak: Dark", "page": 248, "locked": false}, {"level": 15, "name": "Melchizedek", "types": ["Physical", "Light"], "interactions": "Drain: Light / Resist: Status / Weak: Wind, PSY", "page": 254, "locked": false}, {"level": 16, "name": "Dominion", "types": ["Thunder", "Light"], "interactions": "Reflect: Light / Null: Thunder / Weak: Wind, Dark, PSY", "page": 265, "locked": false}, {"level": 17, "name": "Terminator", "types": ["Physical", "Thunder", "Status"], "interactions": "Reflect: Fire, Ice / Weak: Thunder", "page": 267, "locked": false}, {"level": 17, "name": "Throne", "types": ["Fire", "Light"], "interactions": "Drain: Fire / Weak: Dark", "page": 266, "locked": false}, {"level": 19, "name": "Sraosha", "types": ["Physical", "Light", "Thunder"], "interactions": "Reflect: Light, Nuclear / Drain: Thunder / Weak: Dark", "page": 283, "locked": false}, {"level": 20, "name": "Metatron", "types": ["Light", "Intel"], "interactions": "Drain: Light / Reflect: Wind / Resist: Physical / Weak: Intel", "page": 308, "locked": true}], "Hermit": [{"level": 1, "name": "Koropokkuru", "types": ["Ice", "Debuff"], "interactions": "Resist: Gun, Ice / Weak: Intel", "page": 167, "locked": false}, {"level": 2, "name": "Bicorn", "types": ["Physical", "Wind", "Debuff"], "interactions": "Resist: Light / Weak: Ice, Nuclear", "page": 170, "locked": false}, {"level": 6, "name": "Naga", "types": ["Physical", "Thunder"], "interactions": "Null: Thunder, Nuclear / Resist: Dark / Weak: Wind", "page": 196, "locked": false}, {"level": 6, "name": "Sudama", "types": ["Wind", "Intel"], "interactions": "Reflect: Wind / Resist: Nuclear / Weak: Ice", "page": 197, "locked": false}, {"level": 11, "name": "Jatayu", "types": ["Wind", "Buff"], "interactions": "Drain: Wind / Weak: Intel, Nuclear", "page": 230, "locked": false}, {"level": 13, "name": "Arahabaki", "types": ["Fire", "Buff"], "interactions": "Reflect: Wind, PSY / Resist: Light, Dark", "page": 242, "locked": false}, {"level": 14, "name": "Kumbhanda", "types": ["Physical", "Debuff"], "interactions": "Null: Fire / Reflect: Dark / Weak: Ice", "page": 251, "locked": false}, {"level": 15, "name": "Koumokuten", "types": ["Physical", "Buff"], "interactions": "Resist: Physical, Light / Weak: Ice", "page": 254, "locked": false}, {"level": 16, "name": "Nebiros", "types": ["Fire", "Dark"], "interactions": "Reflect: Dark / Weak: Light", "page": 260, "locked": false}, {"level": 17, "name": "Nidhoggr", "types": ["Ice", "Dark"], "interactions": "Null: Ice, Dark / Weak: Light", "page": 269, "locked": false}, {"level": 18, "name": "Ongyo-Ki", "types": ["Fire", "Status", "Buff"], "interactions": "Reflect: Light, Dark / Resist: Physical, Gun", "page": 277, "locked": true}], "Fortune": [{"level": 4, "name": "Clotho", "types": ["Light", "Intel", "Heal"], "interactions": "Null: Wind / Weak: Ice, PSY", "page": 185, "locked": false}, {"level": 9, "name": "Ariadne", "types": ["Physical"], "interactions": "Resist: Gun, Light / Null: Status / Weak: Intel, Nuclear", "page": 217, "locked": false}, {"level": 10, "name": "Fortune", "types": ["Wind", "Buff"], "interactions": "Null: Wind / Resist: PSY, Nuclear / Weak: Thunder", "page": 221, "locked": false}, {"level": 10, "name": "Lachesis", "types": ["Ice", "Buff"], "interactions": "Null: Ice, PSY / Weak: Thunder", "page": 223, "locked": false}, {"level": 12, "name": "Atropos", "types": ["Thunder", "Heal"], "interactions": "Null: Wind / Weak: Fire", "page": 236, "locked": false}, {"level": 18, "name": "Norn", "types": ["Wind", "Thunder", "Heal"], "interactions": "Drain: Wind / Null: Fire / Resist: Physical, Gun, Intel", "page": 264, "locked": true}], "Strength": [{"level": 2, "name": "Sandman", "types": ["Status", "Intel"], "interactions": "Resist: Wind / Weak: Thunder", "page": 171, "locked": false}, {"level": 2, "name": "Kusi Mitama", "types": ["Wind", "Heal"], "interactions": "Reflect: Nuclear / Resist: Wind / Weak: Fire", "page": 173, "locked": false}, {"level": 4, "name": "Kelpie", "types": ["Wind"], "interactions": "Resist: Ice / Weak: Thunder", "page": 183, "locked": false}, {"level": 5, "name": "Oni", "types": ["Physical"], "interactions": "Resist: Physical, Gun / Reflect: Thunder", "page": 189, "locked": false}, {"level": 9, "name": "Okuninushi", "types": ["Physical", "Buff"], "interactions": "Weak: Light, Intel", "page": 214, "locked": false}, {"level": 9, "name": "Rakshasa", "types": ["Physical", "Thunder"], "interactions": "Resist: Physical, Fire / Weak: Light", "page": 218, "locked": false}, {"level": 12, "name": "Narasimha", "types": ["Physical", "Light"], "interactions": "Null: Light / Weak: Fire", "page": 236, "locked": false}, {"level": 14, "name": "Zouchouten", "types": ["Physical", "Thunder"], "interactions": "Resist: Physical / Weak: Wind, PSY", "page": 249, "locked": false}, {"level": 18, "name": "Valkyrie", "types": ["Physical", "Buff"], "interactions": "Null: Light / Resist: Gun", "page": 278, "locked": false}, {"level": 19, "name": "Siegfried", "types": ["Physical", "Buff", "Debuff"], "interactions": "Null: Physical / Resist: Ice / Weak: Intel", "page": 282, "locked": false}, {"level": 20, "name": "Zaou-Gongen", "types": ["Physical", "Fire"], "interactions": "Reflect: Fire / Null: Light, Dark / Weak: Thunder", "page": 301, "locked": true}], "Hanged Man": [{"level": 2, "name": "Orthrus", "types": ["Physical", "Fire"], "interactions": "Resist: Status / Weak: Ice", "page": 173, "locked": false}, {"level": 4, "name": "Inugami", "types": ["Physical", "Buff"], "interactions": "Null: Fire / Resist: PSY / Weak: Thunder", "page": 180, "locked": false}, {"level": 5, "name": "Hua Po", "types": ["Fire", "Status"], "interactions": "Reflect: Fire / Weak: Gun", "page": 189, "locked": false}, {"level": 7, "name": "Anubis", "types": ["Light", "Dark"], "interactions": "Null: Intel, Dark / Weak: Fire", "page": 201, "locked": false}, {"level": 7, "name": "Takeminakata", "types": ["Physical", "Thunder"], "interactions": "Resist: Dark / Weak: Intel", "page": 204, "locked": false}, {"level": 9, "name": "Hecatoncheires", "types": ["Physical", "Intel"], "interactions": "Null: Physical / Weak: Light", "page": 213, "locked": false}, {"level": 9, "name": "Makami", "types": ["Fire", "Debuff", "Heal"], "interactions": "Null: Light / Weak: Thunder", "page": 215, "locked": false}, {"level": 11, "name": "Yomotsu-Ikusa", "types": ["Physical", "Ice", "Status"], "interactions": "Null: Dark / Weak: Fire", "page": 227, "locked": false}, {"level": 13, "name": "Yatsufusa", "types": ["Fire", "Buff"], "interactions": "Drain: Fire / Reflect: Wind / Resist: Nuclear / Null: Light", "page": 242, "locked": false}, {"level": 15, "name": "Taown", "types": ["Physical", "Buff"], "interactions": "Null: Wind, Dark / Weak: Fire, Light, PSY", "page": 253, "locked": false}, {"level": 16, "name": "Moloch", "types": ["Fire", "Status"], "interactions": "Reflect: Fire / Resist: Thunder, PSY / Null: Status / Weak: Ice", "page": 261, "locked": false}, {"level": 18, "name": "Vasuki", "types": ["Light", "Status"], "interactions": "Null: Ice, Thunder / Weak: Dark", "page": 276, "locked": false}, {"level": 20, "name": "Attis", "types": ["Fire", "Heal", "Buff"], "interactions": "Reflect: Wind / Null: Fire / Weak: Dark", "page": 300, "locked": true}], "Death": [{"level": 1, "name": "Mandrake", "types": ["Physical", "Status"], "interactions": "Resist: Ice / Weak: Fire", "page": 165, "locked": false}, {"level": 3, "name": "Mokoi", "types": ["Physical", "Status", "Buff"], "interactions": "Resist: Thunder / Weak: Wind", "page": 176, "locked": false}, {"level": 5, "name": "Ghoul", "types": ["Physical", "Status", "Debuff"], "interactions": "Null: Ice, Nuclear / Weak: Fire, Light", "page": 188, "locked": false}, {"level": 8, "name": "Pisaca", "types": ["Physical", "Status"], "interactions": "Null: Dark / Weak: Fire", "page": 210, "locked": false}, {"level": 10, "name": "Matador", "types": ["Physical", "Debuff", "Wind"], "interactions": "Reflect: Dark / Weak: Fire", "page": 223, "locked": false}, {"level": 12, "name": "Pale Rider", "types": ["Dark", "Status"], "interactions": "Reflect: Dark, PSY / Weak: Light", "page": 234, "locked": false}, {"level": 14, "name": "Mot", "types": ["Dark", "Status", "Intel"], "interactions": "Resist: Physical / Weak: Wind, Nuclear", "page": 248, "locked": false}, {"level": 14, "name": "Chernobog", "types": ["Physical", "Heal", "Status"], "interactions": "Drain: Ice / Reflect: Dark / Weak: Fire, Light", "page": 249, "locked": false}, {"level": 17, "name": "Samael", "types": ["Dark", "Status", "Debuff"], "interactions": "Null: Thunder / Resist: Dark / Weak: Wind, Intel", "page": 265, "locked": false}, {"level": 19, "name": "Mahakala", "types": ["Physical", "Fire", "Buff"], "interactions": "Drain: Fire / Reflect: Thunder / Null: Dark", "page": 285, "locked": false}, {"level": 20, "name": "Alice", "types": ["Dark"], "interactions": "Reflect: Dark / Resist: Intel", "page": 290, "locked": true}], "Temperance": [{"level": 1, "name": "Nigi Mitama", "types": ["Light", "Heal"], "interactions": "Null: Nuclear / Resist: Light, Dark / Weak: Thunder", "page": 168, "locked": false}, {"level": 4, "name": "Koppa Tengu", "types": ["Physical", "Status"], "interactions": "Resist: Light, Nuclear / Weak: Ice", "page": 182, "locked": false}, {"level": 4, "name": "Genbu", "types": ["Ice", "Heal", "Debuff"], "interactions": "Resist: Ice, PSY / Weak: Wind", "page": 183, "locked": false}, {"level": 6, "name": "Jikokuten", "types": ["Physical", "Buff", "Debuff"], "interactions": "Resist: Physical, Light / Weak: Dark, PSY", "page": 194, "locked": false}, {"level": 7, "name": "Mithra", "types": ["Light", "Heal"], "interactions": "Null: Ice / Resist: PSY / Weak: Thunder", "page": 201, "locked": false}, {"level": 9, "name": "Xiezhai", "types": ["Thunder", "Status"], "interactions": "Resist: Thunder / Weak: Status", "page": 216, "locked": false}, {"level": 11, "name": "Raja Naga", "types": ["Thunder", "Status"], "interactions": "Null: Thunder / Weak: Nuclear", "page": 226, "locked": false}, {"level": 12, "name": "Byakko", "types": ["Ice"], "interactions": "Drain: Ice / Weak: Dark", "page": 232, "locked": false}, {"level": 12, "name": "Seiryu", "types": ["Thunder", "Debuff", "Intel"], "interactions": "Resist: Ice / Weak: Status, PSY", "page": 235, "locked": false}, {"level": 14, "name": "Gabriel", "types": ["Ice", "Thunder", "Light"], "interactions": "Drain: Light, PSY / Null: Thunder", "page": 247, "locked": false}, {"level": 20, "name": "Yurlungur", "types": ["Physical", "Ice", "Light"], "interactions": "Drain: Nuclear / Resist: Light / Weak: Status", "page": 299, "locked": true}], "Devil": [{"level": 2, "name": "Ukobach", "types": ["Fire", "Status"], "interactions": "Resist: Fire / Weak: Light", "page": 170, "locked": false}, {"level": 4, "name": "Incubus", "types": ["Fire", "Status"], "interactions": "Resist: Thunder / Weak: Gun", "page": 185, "locked": false}, {"level": 6, "name": "Andras", "types": ["Thunder", "Heal"], "interactions": "Resist: Ice / Weak: Gun", "page": 194, "locked": false}, {"level": 7, "name": "Lilim", "types": ["Ice", "Debuff"], "interactions": "Null: Dark / Resist: Nuclear / Weak: Light", "page": 200, "locked": false}, {"level": 7, "name": "Succubus", "types": ["Fire", "Dark", "Status"], "interactions": "Null: Dark / Resist: Fire / Weak: Gun", "page": 202, "locked": false}, {"level": 7, "name": "Wendigo", "types": ["Physical", "Status"], "interactions": "Reflect: Ice / Null: Dark / Weak: Fire", "page": 316, "locked": false}, {"level": 8, "name": "Flauros", "types": ["Physical", "Fire", "Buff"], "interactions": "Null: Fire / Weak: Ice", "page": 207, "locked": false}, {"level": 10, "name": "Pazuzu", "types": ["Wind", "Dark", "Status"], "interactions": "Null: Dark, PSY / Weak: Light", "page": 221, "locked": false}, {"level": 10, "name": "Vetala", "types": ["Physical", "Status"], "interactions": "Resist: Wind, Dark / Weak: Fire", "page": 219, "locked": false}, {"level": 13, "name": "Baphomet", "types": ["Fire", "Ice", "Thunder"], "interactions": "Null: Dark / Resist: Fire / Weak: Light", "page": 241, "locked": false}, {"level": 17, "name": "Belphegor", "types": ["Thunder", "Status"], "interactions": "Reflect: Dark / Resist: Ice / Weak: Fire", "page": 267, "locked": false}, {"level": 19, "name": "Belial", "types": ["Physical", "Fire", "Dark"], "interactions": "Null: Dark / Drain: Ice", "page": 283, "locked": false}, {"level": 20, "name": "Beelzebub", "types": ["Status", "Buff", "Debuff"], "interactions": "Null: Dark / Weak: Fire", "page": 293, "locked": true}], "Tower": [{"level": 5, "name": "Tao Tie", "types": ["Physical", "Debuff"], "interactions": "Reflect: Dark", "page": 187, "locked": false}, {"level": 10, "name": "Masakado", "types": ["Physical", "Light"], "interactions": "Null: Physical, Fire / Weak: Thunder, Dark", "page": 225, "locked": false}, {"level": 10, "name": "Jack Ripper", "types": ["Dark", "Status", "Debuff"], "interactions": "Resist: Intel / Weak: Light", "page": 313, "locked": false}, {"level": 11, "name": "Red Rider", "types": ["Physical", "Intel"], "interactions": "Null: Dark, PSY / Weak: Light", "page": 233, "locked": false}, {"level": 13, "name": "Seth", "types": ["Fire", "Wind", "Thunder"], "interactions": "Reflect: Fire, Thunder / Weak: Light, PSY", "page": 239, "locked": false}, {"level": 15, "name": "Fafnir", "types": ["Physical", "Status", "Buff"], "interactions": "Resist: Physical, Ice, Thunder / Weak: Fire, Wind", "page": 315, "locked": false}, {"level": 15, "name": "Mara", "types": ["Physical", "Buff"], "interactions": "Drain: Thunder / Weak: Ice", "page": 257, "locked": false}, {"level": 19, "name": "Mada", "types": ["Fire", "Status"], "interactions": "Drain: Fire / Resist: Intel / Weak: Dark", "page": 287, "locked": false}, {"level": 20, "name": "Shiva", "types": ["Physical", "Wind", "Heal"], "interactions": "Reflect: Thunder / Null: Ice, Light, Dark, Nuclear / Weak: Status", "page": 295, "locked": true}], "Star": [{"level": 1, "name": "Kodama", "types": ["Wind", "Status", "Debuff"], "interactions": "Resist: Ice, PSY / Weak: Fire", "page": 166, "locked": false}, {"level": 3, "name": "Fuu-Ki", "types": ["Wind", "Buff"], "interactions": "Drain: Wind / Null: Nuclear / Weak: Thunder", "page": 176, "locked": false}, {"level": 6, "name": "Kaiwan", "types": ["Dark", "Buff"], "interactions": "Null: Status, Gun / Weak: Intel", "page": 198, "locked": false}, {"level": 8, "name": "Nandi", "types": ["Wind", "Status", "Heal"], "interactions": "Null: Wind / Weak: Fire", "page": 207, "locked": false}, {"level": 10, "name": "Ananta", "types": ["Ice", "Buff"], "interactions": "Drain: Ice / Weak: Thunder", "page": 222, "locked": false}, {"level": 10, "name": "Hanuman", "types": ["Physical", "Heal"], "interactions": "Resist: Status, Light / Weak: Ice", "page": 224, "locked": false}, {"level": 12, "name": "Black Rider", "types": ["Physical", "Dark"], "interactions": "Resist: Light, Dark / Null: Nuclear", "page": 234, "locked": false}, {"level": 12, "name": "Neko Shogun", "types": ["Intel", "Heal"], "interactions": "Null: Light / Weak: Wind, PSY", "page": 232, "locked": false}, {"level": 13, "name": "Ganesha", "types": ["Physical", "Debuff"], "interactions": "Drain: Wind / Weak: Status", "page": 244, "locked": false}, {"level": 17, "name": "Saturnus", "types": ["Fire"], "interactions": "Drain: Fire / Null: Wind / Weak: Ice, PSY", "page": 270, "locked": false}, {"level": 18, "name": "Uriel", "types": ["Physical"], "interactions": "Reflect: Light / Null: Physical, Dark", "page": 274, "locked": false}, {"level": 20, "name": "Helel", "types": ["Fire", "Dark", "Buff"], "interactions": "Weak: Ice", "page": 329, "locked": true}], "Moon": [{"level": 2, "name": "Nue", "types": ["Physical", "Dark", "Status"], "interactions": "Null: Dark / Weak: Fire, PSY", "page": 172, "locked": false}, {"level": 3, "name": "Onmoraki", "types": ["Fire", "Dark"], "interactions": "Null: Dark / Weak: Fire", "page": 180, "locked": false}, {"level": 4, "name": "Nozuchi", "types": ["Thunder", "Status"], "interactions": "Reflect: Thunder / Weak: Ice", "page": 182, "locked": false}, {"level": 7, "name": "Kaguya", "types": ["Light", "Heal", "Intel"], "interactions": "Null: Light, Dark, Nuclear / Weak: Fire", "page": 203, "locked": false}, {"level": 8, "name": "Mothman", "types": ["Thunder", "Status"], "interactions": "Null: Thunder, PSY / Weak: Intel, Nuclear", "page": 211, "locked": false}, {"level": 9, "name": "Black Ooze", "types": ["Status"], "interactions": "Null: Dark / Resist: Physical / Weak: Thunder, Intel, Status", "page": 216, "locked": false}, {"level": 11, "name": "Lilith", "types": ["Ice", "Wind", "Dark"], "interactions": "Reflect: Ice / Weak: Fire", "page": 230, "locked": false}, {"level": 12, "name": "Girimekhala", "types": ["Physical", "Dark", "Status"], "interactions": "Reflect: Physical, Gun / Null: Dark / Weak: Light", "page": 235, "locked": false}, {"level": 14, "name": "Sui-Ki", "types": ["Ice", "Intel", "Buff"], "interactions": "Drain: Ice / Weak: Status", "page": 246, "locked": false}, {"level": 17, "name": "Cu Chulainn", "types": ["Physical", "Wind", "Thunder"], "interactions": "Reflect: Physical / Null: Nuclear / Weak: Ice", "page": 266, "locked": false}, {"level": 18, "name": "Tsukuyomi", "types": ["Dark"], "interactions": "Resist: Gun / Reflect: PSY / Weak: Intel", "page": 276, "locked": false}, {"level": 19, "name": "Baal Zebul", "types": ["Ice", "Dark", "Status"], "interactions": "Drain: PSY / Resist: Wind / Weak: Fire, Light", "page": 282, "locked": false}, {"level": 20, "name": "Sandalphon", "types": ["Light", "Heal"], "interactions": "Reflect: Light, PSY / Null: Dark / Resist: Physical, Gun", "page": 296, "locked": true}], "Sun": [{"level": 1, "name": "Cu Sith", "types": ["Wind", "Status"], "interactions": "Resist: Wind / Weak: Fire", "page": 166, "locked": false}, {"level": 3, "name": "Suzaku", "types": ["Fire", "Thunder"], "interactions": "Resist: Intel / Weak: Ice", "page": 175, "locked": false}, {"level": 5, "name": "Phoenix", "types": ["Physical", "Fire", "Wind"], "interactions": "Null: Wind / Resist: Ice / Weak: Thunder", "page": 188, "locked": false}, {"level": 7, "name": "Mithras", "types": ["Thunder", "Light", "Dark"], "interactions": "Drain: Fire / Null: Status / Weak: Intel", "page": 202, "locked": false}, {"level": 9, "name": "Horus", "types": ["Heal", "Light"], "interactions": "Reflect: Light / Resist: Nuclear / Weak: Fire", "page": 213, "locked": false}, {"level": 9, "name": "Gdon", "types": ["Fire", "Ice"], "interactions": "Drain: Fire / Weak: Ice", "page": 215, "locked": false}, {"level": 11, "name": "Yatagarasu", "types": ["Fire", "Heal", "Intel"], "interactions": "Null: Light, Nuclear / Weak: Dark", "page": 226, "locked": false}, {"level": 15, "name": "Quetzacoatl", "types": ["Wind", "Light", "Buff"], "interactions": "Null: Fire / Resist: Wind / Weak: Status", "page": 253, "locked": false}, {"level": 16, "name": "Suparna", "types": ["Wind"], "interactions": "Null: Wind / Weak: Thunder", "page": 258, "locked": false}, {"level": 18, "name": "Asura", "types": ["Fire", "Light", "Buff"], "interactions": "Reflect: Status / Weak: Ice", "page": 275, "locked": true}], "Judgement": [{"level": 4, "name": "Abaddon", "types": ["Physical", "Heal"], "interactions": "Drain: Physical / Null: Nuclear / Weak: Intel", "page": 184, "locked": false}, {"level": 6, "name": "Yamata No Orochi", "types": ["Physical", "Ice"], "interactions": "Null: Ice / Resist: Dark / Weak: Status", "page": 199, "locked": false}, {"level": 8, "name": "Ardha", "types": ["Physical", "Heal"], "interactions": "Null: Fire, Thunder / Drain: Ice", "page": 209, "locked": false}, {"level": 12, "name": "Jeanne D'Arc", "types": ["Heal"], "interactions": "Reflect: Light / Resist: Gun, Dark / Weak: Fire", "page": 314, "locked": false}, {"level": 15, "name": "Trumpeter", "types": ["Light", "Debuff"], "interactions": "Reflect: Thunder, Light / Resist: PSY", "page": 252, "locked": false}, {"level": 16, "name": "Michael", "types": ["Thunder", "Wind", "Heal"], "interactions": "Reflect: Light / Weak: Physical", "page": 262, "locked": false}, {"level": 18, "name": "Cherub", "types": ["Physical", "Heal"], "interactions": "Null: Light, Dark, PSY", "page": 274, "locked": false}, {"level": 18, "name": "Zeus", "types": ["Physical", "Thunder"], "interactions": "Null: Intel / Drain: PSY / Weak: Status", "page": 273, "locked": false}, {"level": 20, "name": "Satan", "types": ["Fire", "Ice", "Thunder"], "interactions": "Reflect: Ice, Dark, PSY / Resist: Gun", "page": 331, "locked": true}], "Aeon": [{"level": 1, "name": "Moh Shuvuu", "types": ["PSY", "Wind", "Heal"], "interactions": "Resist: PSY / Weak: Thunder", "page": 169, "locked": false}, {"level": 2, "name": "Hitokoto-Nushi", "types": ["Nuclear", "Light"], "interactions": "Resist: Nuclear / Weak: Dark", "page": 169, "locked": false}, {"level": 3, "name": "Mishaguji", "types": ["PSY", "Thunder", "Dark"], "interactions": "Resist: Dark / Weak: Ice", "page": 181, "locked": false}, {"level": 4, "name": "Seiten Taisei", "types": ["Nuclear", "Wind"], "interactions": "Resist: Nuclear / Weak: Fire, Intel", "page": 181, "locked": false}, {"level": 5, "name": "Helldog", "types": ["PSY", "Fire"], "interactions": "Null: Fire / Resist: Status / Weak: Light", "page": 193, "locked": false}, {"level": 6, "name": "Shax", "types": ["Nuclear", "Ice"], "interactions": "Resist: Ice, Nuclear / Weak: PSY", "page": 193, "locked": false}, {"level": 7, "name": "Heqet", "types": ["PSY", "Heal"], "interactions": "Resist: Ice / Weak: Status", "page": 206, "locked": false}, {"level": 8, "name": "Kotoshironushi", "types": ["PSY", "Intel"], "interactions": "Resist: Intel, PSY", "page": 206, "locked": false}, {"level": 9, "name": "Botis", "types": ["Nuclear", "Thunder", "Buff"], "interactions": "Reflect: Thunder / Weak: Light", "page": 220, "locked": false}, {"level": 10, "name": "Ouroboros", "types": ["Nuclear"], "interactions": "Resist: Fire, Nuclear / Weak: Ice, PSY", "page": 220, "locked": false}, {"level": 11, "name": "Hare of Inaba", "types": ["Nuclear", "Heal"], "interactions": "Null: Gun / Resist: Ice / Weak: Thunder", "page": 231, "locked": false}, {"level": 12, "name": "Dormarth", "types": ["PSY", "Buff", "Debuff"], "interactions": "Null: PSY / Resist: Physical / Weak: Ice", "page": 231, "locked": false}, {"level": 13, "name": "Alraune", "types": ["PSY", "Status"], "interactions": "Null: Status / Weak: Fire", "page": 245, "locked": false}, {"level": 14, "name": "Armaiti", "types": ["PSY", "Fire"], "interactions": "Resist: Fire, Ice / Reflect: Wind", "page": 245, "locked": false}, {"level": 15, "name": "Hresvelgr", "types": ["Nuclear", "Wind"], "interactions": "Weak: Gun", "page": 259, "locked": false}, {"level": 16, "name": "Kresnik", "types": ["Physical", "Ice", "PSY"], "interactions": "Null: Dark / Resist: Physical / Weak: Intel, Nuclear", "page": 259, "locked": false}, {"level": 17, "name": "Murmur", "types": ["Nuclear", "Thunder"], "interactions": "Reflect: Wind, Thunder / Weak: Fire, Ice", "page": 272, "locked": false}, {"level": 18, "name": "Gucumatzz", "types": ["PSY", "Debuff"], "interactions": "Reflect: PSY / Weak: Dark", "page": 272, "locked": false}, {"level": 19, "name": "Lucifuge", "types": ["Nuclear", "Buff", "Status"], "interactions": "Reflect: Gun, Wind / Resist: Dark / Weak: Thunder", "page": 284, "locked": false}, {"level": 20, "name": "Maria", "types": ["PSY", "Light"], "interactions": "Drain: Light, Dark / Null: Wind / Resist: Thunder", "page": 291, "locked": true}]};
+
+
+const ROMAN = {"Fool":"0","Magician":"I","Priestess":"II","Empress":"III","Emperor":"IV","Hierophant":"V","Lovers":"VI","Chariot":"VII","Justice":"VIII","Hermit":"IX","Fortune":"X","Strength":"XI","Hanged Man":"XII","Death":"XIII","Temperance":"XIV","Devil":"XV","Tower":"XVI","Star":"XVII","Moon":"XVIII","Sun":"XIX","Judgement":"XX","Aeon":"XX"};
+const DISPLAY_NAME = {"Fool":"The Fool","Magician":"The Magician","Priestess":"The Priestess","Empress":"The Empress","Emperor":"The Emperor","Hierophant":"The Hierophant","Lovers":"The Lovers","Chariot":"The Chariot","Justice":"Justice","Hermit":"The Hermit","Fortune":"Fortune","Strength":"Strength","Hanged Man":"The Hanged Man","Death":"Death","Temperance":"Temperance","Devil":"The Devil","Tower":"The Tower","Star":"The Star","Moon":"The Moon","Sun":"The Sun","Judgement":"Judgement","Aeon":"Aeon"};
+
+const ARCANA_ORDER = Object.keys(FUSION_MATRIX);
+
+const arcSelA = document.getElementById('arcSelA');
+const arcSelB = document.getElementById('arcSelB');
+function buildArcanaSelect(sel){
+  ARCANA_ORDER.forEach(arcana=>{
+    const opt = document.createElement('option');
+    opt.value = arcana;
+    opt.textContent = ROMAN[arcana] + " — " + DISPLAY_NAME[arcana];
+    sel.appendChild(opt);
+  });
+}
+buildArcanaSelect(arcSelA);
+buildArcanaSelect(arcSelB);
+arcSelA.value = "Fool";
+arcSelB.value = "Magician";
+
+const lvlA = document.getElementById('lvlA');
+const lvlB = document.getElementById('lvlB');
+
+function currentMode(){
+  return document.querySelector('input[name="mode"]:checked').value;
+}
+
+function toggleModeUI(){
+  const mode = currentMode();
+  document.querySelectorAll('.slot-persona').forEach(el=> el.style.display = (mode==='persona') ? 'block' : 'none');
+  document.querySelectorAll('.slot-arcana').forEach(el=> el.style.display = (mode==='arcana') ? 'block' : 'none');
+}
+
+function compute(){
+  const mode = currentMode();
+  const tarot = document.getElementById('tarotCard');
+  const candSection = document.getElementById('candidateSection');
+  const candList = document.getElementById('candidateList');
+  const candLabel = document.getElementById('candidateLabel');
+
+  if(mode === 'persona'){
+    tarot.innerHTML = '<div class="placeholder-card">Coming soon, hopefully.</div>';
+    candSection.style.display = "none";
+    return;
+  }
+
+  const arcanaA = arcSelA.value;
+  const arcanaB = arcSelB.value;
+  const levelA = Math.max(1, parseInt(lvlA.value) || 1);
+  const levelB = Math.max(1, parseInt(lvlB.value) || 1);
+  const slotA = {arcana:arcanaA, level:levelA};
+  const slotB = {arcana:arcanaB, level:levelB};
+
+  let resultArcana = FUSION_MATRIX[slotA.arcana][slotB.arcana];
+  const aeonPref = document.getElementById('aeonToggle').value;
+  if(resultArcana === "Judgement" && aeonPref === "Aeon"){
+    resultArcana = "Aeon";
+  }
+  document.getElementById('aeonToggle').closest('.field').style.opacity =
+    (FUSION_MATRIX[slotA.arcana][slotB.arcana] === "Judgement") ? "1" : "0.45";
+
+  const clv = parseInt(document.getElementById('clv').value) || 1;
+  const confRank = parseInt(document.getElementById('confRank').value) || 0;
+
+  const avgFloor = Math.floor((slotA.level + slotB.level)/2);
+  const levelCap = Math.min(avgFloor, clv);
+
+  const pool = PERSONAE[resultArcana].filter(p=>p.level <= levelCap && !p.locked);
+  pool.sort((a,b)=>b.level-a.level);
+
+  candList.innerHTML = "";
+
+  tarot.innerHTML =
+    '<div class="tarot-numeral">' + ROMAN[resultArcana] + ' — ' + DISPLAY_NAME[resultArcana] + '</div>' +
+    '<div class="tarot-name">Level ' + levelCap + ' ' + DISPLAY_NAME[resultArcana] + '</div>' +
+    '<div class="tarot-level">Average of Lv.' + slotA.level + ' (' + DISPLAY_NAME[slotA.arcana] + ') and Lv.' + slotB.level + ' (' + DISPLAY_NAME[slotB.arcana] + '), rounded down &mdash; capped at your Character Level (' + clv + ')</div>' +
+    '<div class="tarot-divider"></div>' +
+    '<div class="tarot-section-label">Spell Points</div>' +
+    '<table class="sp-table">' +
+      '<tr><td>Type-deck SP (5 + PLv' + (confRank>=10 ? ' + Confidant' : '') + ')</td><td>' + (5 + levelCap + Math.floor(confRank/10)) + '</td></tr>' +
+      '<tr><td>Inherited SP (half of Lv.' + levelCap + ', from the two source Personae’s decks)</td><td>' + (levelCap/2) + '</td></tr>' +
+      '<tr><td>Level cap used</td><td>' + levelCap + ' (avg ' + avgFloor + ', CLv ' + clv + ')</td></tr>' +
+    '</table>';
+
+  if(pool.length === 0){
+    candSection.style.display = "none";
+  } else {
+    candSection.style.display = "block";
+    candLabel.textContent = "Known Personae of this Arcana at or below Level " + levelCap + " (optional reference)";
+    pool.forEach(p=>{
+      const row = document.createElement('div');
+      row.className = "candidate-row";
+      row.style.cursor = "default";
+      row.innerHTML = '<span class="candidate-lv">Lv.'+p.level+'</span><span class="candidate-name">'+p.name+'</span><span class="candidate-types">'+p.types.join(", ")+'</span>';
+      candList.appendChild(row);
+    });
+  }
+}
+
+document.querySelectorAll('input[name="mode"]').forEach(r=>{
+  r.addEventListener('change', ()=>{ toggleModeUI(); compute(); });
+});
+[arcSelA, arcSelB, lvlA, lvlB, document.getElementById('clv'), document.getElementById('confRank'), document.getElementById('aeonToggle')].forEach(el=>{
+  el.addEventListener('input', ()=>{ compute(); });
+});
+toggleModeUI();
+compute();
+</script>
+</body>
+</html>
